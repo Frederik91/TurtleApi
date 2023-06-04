@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+using TurtleApi;
 using TurtleApi.Services.Programs;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -5,6 +7,12 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddTransient<IProgramService, ProgramService>();
+
+builder.Services.AddDbContext<TurtleDbContext>(c =>
+{
+    c.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection"));
+});
+
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
