@@ -27,8 +27,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
 app
 .MapGet("command/{turtleId}", (string turtleId, IProgramService service) => service.GetNextMove(turtleId))
 .WithOpenApi();
