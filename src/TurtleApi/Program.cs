@@ -1,12 +1,15 @@
 using Microsoft.EntityFrameworkCore;
 using TurtleApi;
+using TurtleApi.Db;
 using TurtleApi.Services.Programs;
+using TurtleApi.Services.Programs.Generators;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddTransient<IProgramService, ProgramService>();
+builder.Services.AddTransient<IProgramGenerator, HoleDiggerGenerator>();
 
 builder.Services.AddDbContext<TurtleDbContext>(c =>
 {
@@ -28,7 +31,16 @@ if (app.Environment.IsDevelopment())
 }
 
 app
-.MapGet("command/{turtleId}", (string turtleId, IProgramService service) => service.GetNextMove(turtleId))
-.WithOpenApi();
+    .MapGet("generate/{turtleName}/{program}", Generate)
+    .WithOpenApi();
+
+Task Generate(IProgramService service, string turtleName, string program, string[]? args = null)
+{
+    return service.Generate(turtleName, program, args);
+}
+
+app
+    .MapGet("command/{turtleName}", (string turtleName, IProgramService service) => service.GetNextMove(turtleName))
+    .WithOpenApi();
 
 app.Run();
