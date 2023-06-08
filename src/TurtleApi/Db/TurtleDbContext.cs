@@ -5,7 +5,7 @@ namespace TurtleApi.Db;
 public class TurtleDbContext : DbContext
 {
     public DbSet<Turtle> Turtles { get; set; } = null!;
-    public DbSet<TurtleProgram> Programs { get; set; } = null!;
+    public DbSet<Program> Programs { get; set; } = null!;
     public DbSet<Step> Steps { get; set; } = null!;
 
     public TurtleDbContext(DbContextOptions<TurtleDbContext> options) : base(options)
@@ -19,22 +19,14 @@ public class TurtleDbContext : DbContext
             .HasKey(x => x.Id);
 
         modelBuilder
-            .Entity<Turtle>()
-            .HasMany<TurtleProgram>();
+            .Entity<Program>()
+            .HasKey(x => x.Id);
 
         modelBuilder
-            .Entity<TurtleProgram>()
+            .Entity<Program>()
             .HasOne<Turtle>()
             .WithMany(x => x.Programs)
             .HasForeignKey(x => x.TurtleId);
-
-        modelBuilder
-            .Entity<TurtleProgram>()
-            .HasMany<Step>();
-
-        modelBuilder
-            .Entity<TurtleProgram>()
-            .HasKey(x => x.Id);
 
         modelBuilder
             .Entity<Step>()
@@ -42,5 +34,11 @@ public class TurtleDbContext : DbContext
 
         modelBuilder.Entity<Step>()
             .HasIndex(x => x.State);
+
+        modelBuilder
+            .Entity<Step>()
+            .HasOne<Program>()
+            .WithMany(x => x.Steps)
+            .HasForeignKey(x => x.ProgramId);
     }
 }

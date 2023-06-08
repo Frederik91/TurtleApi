@@ -15,7 +15,7 @@ internal sealed class HoleDiggerGenerator : IProgramGenerator
                 throw new InvalidDataException("Could not parse length as an integer");
             if (!int.TryParse(args[1], out var width))
                 throw new InvalidDataException("Could not parse width as an integer");
-            if (width % 2 == 0)
+            if (width % 2 != 0)
                 throw new InvalidDataException("Width must be divisible by two");
 
             if (!int.TryParse(args[2], out var layers))
@@ -25,7 +25,7 @@ internal sealed class HoleDiggerGenerator : IProgramGenerator
     }
 
 
-    public string ProgramName => "HoldeDigger";
+    public string ProgramName => "HoleDigger";
 
     public List<string> GenerateSteps(string[]? args)
     {

@@ -1,6 +1,6 @@
 namespace TurtleApi.Db;
 
-public class TurtleProgram
+public class Program
 {
     public int Id { get; set; }
     public bool IsCompleted { get; set; }

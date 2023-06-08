@@ -2,13 +2,15 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using TurtleApi.Db;
 using TurtleApi.Services.Programs.Generators;
+using TurtleApi.Services.Programs.Requests;
 
 namespace TurtleApi.Services.Programs;
 
 public interface IProgramService
 {
-    Task Generate(string turtleId, string programName, string[]? args);
+    Task Generate(GenerateProgramRequest request);
     Task<string?> GetNextMove(string turtleId);
+    List<string> GetPrograms();
 }
 
 public class ProgramService : IProgramService
@@ -22,19 +24,19 @@ public class ProgramService : IProgramService
         _generators = generators.ToDictionary(x => x.ProgramName, x => x);
     }
 
-    public async Task Generate(string turtleName, string programName, string[]? args)
+    public async Task Generate(GenerateProgramRequest request)
     {
-        var generator = _generators[programName];
-        var steps = generator.GenerateSteps(args);
-        var turtle = await GetOrCreateTurtle(turtleName);
-        await CreateProgram(turtle.Id, programName, steps);
+        var generator = _generators[request.ProgramName];
+        var steps = generator.GenerateSteps(request.args);
+        var turtle = await GetOrCreateTurtle(request.TurtleName);
+        await CreateProgram(turtle.Id, request.ProgramName, steps);
     }
 
     private async Task<int> CreateProgram(int id, string programName, List<string> steps)
     {
         var dbSteps = steps.Select(x => new Step { Action = x }).ToList();
         dbSteps[0].State = 1;
-        var program = _context.Programs.Add(new TurtleProgram { TurtleId = id, Steps = dbSteps });
+        var program = _context.Programs.Add(new Db.Program { TurtleId = id, Steps = dbSteps });
         await _context.SaveChangesAsync();
         return program.Entity.Id;
     }
@@ -55,5 +57,10 @@ public class ProgramService : IProgramService
     {
         var nextStep = await _context.Steps.FirstOrDefaultAsync(x => x.Program.IsCompleted == false && x.Program.Turtle.Name == turtleName && x.State == 1);
         return nextStep?.Action;
+    }
+
+    public List<string> GetPrograms()
+    {
+        return _generators.Select(x => x.Key).ToList();
     }
 }

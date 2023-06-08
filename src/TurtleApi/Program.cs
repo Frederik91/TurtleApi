@@ -3,6 +3,7 @@ using TurtleApi;
 using TurtleApi.Db;
 using TurtleApi.Services.Programs;
 using TurtleApi.Services.Programs.Generators;
+using TurtleApi.Services.Programs.Requests;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,9 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+var dbContext = app.Services.CreateScope().ServiceProvider.GetRequiredService<TurtleDbContext>();
+dbContext.Database.Migrate();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -30,13 +34,19 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app
-    .MapGet("generate/{turtleName}/{program}", Generate)
+var programs = app.MapGroup("Programs");
+
+programs
+    .MapGet("", (IProgramService service) => service.GetPrograms())
     .WithOpenApi();
 
-Task Generate(IProgramService service, string turtleName, string program, string[]? args = null)
+programs
+    .MapPost("Programs/Generate", Generate)
+    .WithOpenApi();
+
+Task Generate(IProgramService service,  GenerateProgramRequest request)
 {
-    return service.Generate(turtleName, program, args);
+    return service.Generate(request);
 }
 
 app
