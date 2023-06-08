@@ -41,10 +41,10 @@ internal sealed class HoleDiggerGenerator : IProgramGenerator
 
     internal void MoveTurtle(Models.Turtle turtle, HoleDiggerArgs holdeDiggerArgs)
     {
-        for (var i = 0; i < holdeDiggerArgs.Layers; i++)
+        for (var i = 1; i <= holdeDiggerArgs.Layers; i++)
         {
             MineLayer(turtle, holdeDiggerArgs);
-            turtle.Up(turtle.Offset.Z);
+            turtle.Up(-turtle.Location.Z);
             turtle.TurnAround();
             turtle.PlaceIntoChest();
             turtle.TurnAround();
@@ -65,21 +65,25 @@ internal sealed class HoleDiggerGenerator : IProgramGenerator
 
     private void MineLayer(Models.Turtle turtle, HoleDiggerArgs args)
     {
-        for (int i = 0; i < args.Width / 2; i++)
+        var iterations = args.Width / 2;
+        for (var i = 1; i <= iterations; i++)
         {
-            MineForward(turtle, args.Length);
+            MineForward(turtle, args.Length - 1);
             turtle.TurnLeft();
             MineForward(turtle);
             turtle.TurnLeft();
-            MineForward(turtle, args.Length);
+            MineForward(turtle, args.Length - 1);
+            if (i == iterations)
+                break;
+
             turtle.TurnRight();
             MineForward(turtle);
             turtle.TurnRight();
         }
 
         // Return to start position
-        turtle.TurnRight();
-        MineForward(turtle, args.Width);
+        turtle.TurnLeft();
+        MineForward(turtle, args.Width - 1);
         turtle.TurnLeft();
     }
 }

@@ -15,7 +15,7 @@ public class TurtleTests
         turtle.Forward();
 
         // Assert
-        Assert.Equal(expectedOffset, turtle.Offset);
+        Assert.Equal(expectedOffset, turtle.Location);
     }
 
     [Theory]

@@ -13,6 +13,8 @@ public struct Vector
         Z = z;
     }
 
+    public static Vector Zero => new Vector(0, 0, 0);
+
     public static Vector operator +(Vector vector1, Vector vector2)
     {
         int newX = vector1.X + vector2.X;

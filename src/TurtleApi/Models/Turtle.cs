@@ -7,14 +7,22 @@ public class Turtle
     private List<string> movements = new List<string>();
 
     public Vector FacingDirection { get; private set; } = new(1, 0, 0);
-    public Vector Offset { get; private set; } = new(0, 0, 0);
+    public Vector Location { get; private set; } = new(0, 0, 0);
+
+    public Geometry ExcavatedGeometry { get; } = new();
+
+    private void AddExcavatedLocation(Vector location)
+    {
+        ExcavatedGeometry.AddPoint(location);
+    }
 
     public void Up(int length = 1)
     {
         for (var i = 0; i < length; i++)
         {
             movements.Add(CUSTOM_PREFIX + "up");
-            Offset += new Vector(0, 0, 1);
+            Location += new Vector(0, 0, 1);
+            AddExcavatedLocation(Location);
         }
     }
 
@@ -23,7 +31,8 @@ public class Turtle
         for (var i = 0; i < length; i++)
         {
             movements.Add(CUSTOM_PREFIX + "down");
-            Offset -= new Vector(0, 0, -1);
+            Location -= new Vector(0, 0, 1);
+            AddExcavatedLocation(Location);
         }
     }
 
@@ -32,7 +41,8 @@ public class Turtle
         for (var i = 0; i < length; i++)
         {
             movements.Add(CUSTOM_PREFIX + "forward");
-            Offset += FacingDirection;
+            Location += FacingDirection;
+            AddExcavatedLocation(Location);
         }
     }
 
@@ -41,7 +51,8 @@ public class Turtle
         for (var i = 0; i < length; i++)
         {
             movements.Add(LUA_PREFIX + "back");
-            Offset -= FacingDirection;
+            Location -= FacingDirection;
+            AddExcavatedLocation(Location);
         }
     }
 
@@ -57,11 +68,23 @@ public class Turtle
         FacingDirection = FacingDirection.RotateRight();
     }
 
-    public void Dig() => movements.Add(LUA_PREFIX + "dig");
+    public void Dig()
+    {
+        movements.Add(LUA_PREFIX + "dig");
+        AddExcavatedLocation(Location + FacingDirection);
+    }
 
-    public void DigUp() => movements.Add(CUSTOM_PREFIX + "digUp");
+    public void DigUp()
+    {
+        movements.Add(CUSTOM_PREFIX + "digUp");
+        AddExcavatedLocation(Location + new Vector(0, 0, 1));
+    }
 
-    public void DigDown() => movements.Add(CUSTOM_PREFIX + "digDown");
+    public void DigDown()
+    {
+        movements.Add(CUSTOM_PREFIX + "digDown");
+        AddExcavatedLocation(Location - new Vector(0, 0, 1));
+    }
 
     public void TurnAround()
     {
