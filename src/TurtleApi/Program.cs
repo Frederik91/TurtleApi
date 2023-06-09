@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using TurtleApi;
 using TurtleApi.Db;
 using TurtleApi.Services.Programs;
 using TurtleApi.Services.Programs.Generators;
 using TurtleApi.Services.Programs.Requests;
+using TurtleApi.Services.Turtles;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddTransient<IProgramService, ProgramService>();
 builder.Services.AddTransient<IProgramGenerator, HoleDiggerGenerator>();
+builder.Services.AddTransient<ITurtleService, TurtleService>();
 
 builder.Services.AddDbContext<TurtleDbContext>(c =>
 {
@@ -25,32 +26,77 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 var dbContext = app.Services.CreateScope().ServiceProvider.GetRequiredService<TurtleDbContext>();
+dbContext.Database.EnsureCreated();
 dbContext.Database.Migrate();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
-var programs = app.MapGroup("Programs");
+var programs = app.MapGroup("Program");
 
 programs
-    .MapGet("", (IProgramService service) => service.GetPrograms())
-    .WithOpenApi();
+    .MapGet("types", (IProgramService service) => Results.Ok(service.GetProgramsTypes()))
+    .WithDescription("Get all program types")
+    .WithOpenApi(operation => new(operation)
+    {
+        Summary = "Get all program types",
+    });
 
 programs
-    .MapPost("Programs/Generate", Generate)
-    .WithOpenApi();
+    .MapGet("", async (IProgramService service) => Results.Ok(await service.GetAllPrograms()))
+    .WithDescription("Get all programs")
+    .WithOpenApi(operation => new(operation)
+    {
+        Summary = "Get all programs",
+    });
 
-Task Generate(IProgramService service,  GenerateProgramRequest request)
-{
-    return service.Generate(request);
-}
+programs
+    .MapGet("turtle/{turtleId}", async (IProgramService service, int turtleId) => Results.Ok(await service.GetTurtlePrograms(turtleId)))
+    .WithDescription("Get all programs for a turtle")
+    .WithOpenApi(operation => new(operation)
+    {
+        Summary = "Get all programs for a turtle",
+    });
 
-app
-    .MapGet("command/{turtleName}", (string turtleName, IProgramService service) => service.GetNextMove(turtleName))
-    .WithOpenApi();
+programs
+    .MapPost("Generate", (IProgramService service, GenerateProgramRequest request) => service.Generate(request))
+    .WithDescription("Generate a program for a turtle")
+    .WithOpenApi(operation => new(operation)
+    {
+        Summary = "Generate a program for a turtle",
+    });
+
+programs
+    .MapPost("{int}/Cancel", (IProgramService service, int programId) => service.CancelProgram(programId))
+    .WithDescription("Cancel all remaining steps for a program")
+    .WithOpenApi(operation => new(operation)
+    {
+        Summary = "Cancel all remaining steps for a program",
+    });
+
+
+var turtle = app.MapGroup("Turtle");
+
+turtle
+    .MapGet("", async (ITurtleService service, CancellationToken CancellationToken) => Results.Ok(await service.GetAllTurtles(CancellationToken)))
+    .WithDescription("Get all turtles")
+    .WithOpenApi(operation => new(operation)
+    {
+        Summary = "Get all turtles",
+    });
+
+var steps = app.MapGroup("Steps");
+
+steps
+    .MapGet("/Next/{turtleName}", async (string turtleName, IProgramService service) =>
+    {
+        var step = await service.GetNextMove(turtleName);
+        return step is null ? Results.NoContent() : Results.Ok(step);
+    })
+    .WithDescription("Get the next step for turtle by name")
+    .WithOpenApi(operation => new(operation)
+    {
+        Summary = "Get the next step for turtle by name",
+    });
 
 app.Run();

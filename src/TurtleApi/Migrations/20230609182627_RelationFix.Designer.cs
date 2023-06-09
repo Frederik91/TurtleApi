@@ -11,7 +11,7 @@ using TurtleApi.Db;
 namespace TurtleApi.Migrations
 {
     [DbContext(typeof(TurtleDbContext))]
-    [Migration("20230608202949_RelationFix")]
+    [Migration("20230609182627_RelationFix")]
     partial class RelationFix
     {
         /// <inheritdoc />
@@ -38,14 +38,9 @@ namespace TurtleApi.Migrations
                     b.Property<int>("TurtleId")
                         .HasColumnType("int");
 
-                    b.Property<int>("TurtleId1")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("TurtleId");
-
-                    b.HasIndex("TurtleId1");
 
                     b.ToTable("Programs");
                 });
@@ -65,17 +60,12 @@ namespace TurtleApi.Migrations
                     b.Property<int>("ProgramId")
                         .HasColumnType("int");
 
-                    b.Property<int>("ProgramId1")
-                        .HasColumnType("int");
-
                     b.Property<int>("State")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ProgramId");
-
-                    b.HasIndex("ProgramId1");
 
                     b.HasIndex("State");
 
@@ -101,15 +91,9 @@ namespace TurtleApi.Migrations
 
             modelBuilder.Entity("TurtleApi.Db.Program", b =>
                 {
-                    b.HasOne("TurtleApi.Db.Turtle", null)
+                    b.HasOne("TurtleApi.Db.Turtle", "Turtle")
                         .WithMany("Programs")
                         .HasForeignKey("TurtleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TurtleApi.Db.Turtle", "Turtle")
-                        .WithMany()
-                        .HasForeignKey("TurtleId1")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -118,15 +102,9 @@ namespace TurtleApi.Migrations
 
             modelBuilder.Entity("TurtleApi.Db.Step", b =>
                 {
-                    b.HasOne("TurtleApi.Db.Program", null)
+                    b.HasOne("TurtleApi.Db.Program", "Program")
                         .WithMany("Steps")
                         .HasForeignKey("ProgramId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TurtleApi.Db.Program", "Program")
-                        .WithMany()
-                        .HasForeignKey("ProgramId1")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

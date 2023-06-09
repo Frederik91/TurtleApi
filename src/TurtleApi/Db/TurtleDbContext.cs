@@ -15,30 +15,29 @@ public class TurtleDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Turtle>()
-            .HasKey(x => x.Id);
+        modelBuilder.Entity<Turtle>(x =>
+        {
+            x.HasMany(t => t.Programs)
+            .WithOne(p => p.Turtle)
+            .HasForeignKey(p => p.TurtleId);
 
-        modelBuilder
-            .Entity<Program>()
-            .HasKey(x => x.Id);
+            x.HasKey(t => t.Id);
+        });
 
-        modelBuilder
-            .Entity<Program>()
-            .HasOne<Turtle>()
-            .WithMany(x => x.Programs)
-            .HasForeignKey(x => x.TurtleId);
 
-        modelBuilder
-            .Entity<Step>()
-            .HasKey(x => x.Id);
+        modelBuilder.Entity<Program>(x =>
+        {
+            x.HasMany(p => p.Steps)
+            .WithOne(s => s.Program)
+            .HasForeignKey(s => s.ProgramId);
 
-        modelBuilder.Entity<Step>()
-            .HasIndex(x => x.State);
+            x.HasKey(p => p.Id);
+        });
 
-        modelBuilder
-            .Entity<Step>()
-            .HasOne<Program>()
-            .WithMany(x => x.Steps)
-            .HasForeignKey(x => x.ProgramId);
+        modelBuilder.Entity<Step>(x =>
+        {
+            x.HasKey(s => s.Id);
+            x.HasIndex(s => s.State);
+        });
     }
 }
