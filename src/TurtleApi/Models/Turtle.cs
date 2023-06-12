@@ -3,24 +3,41 @@ namespace TurtleApi.Models;
 public class Turtle
 {
     private static readonly string LUA_PREFIX = "turtle.";
-    private static readonly string CUSTOM_PREFIX = "custom.";
+    private static readonly string CUSTOM_PREFIX = "movements.";
     private List<string> movements = new List<string>();
 
     public Vector FacingDirection { get; private set; } = new(1, 0, 0);
     public Vector Location { get; private set; } = new(0, 0, 0);
 
     public Geometry ExcavatedGeometry { get; } = new();
+    public Geometry InspectedGeometry { get; } = new();
+
+    public Turtle()
+    {
+        AddExcavatedLocation(Location);
+    }
 
     private void AddExcavatedLocation(Vector location)
     {
         ExcavatedGeometry.AddPoint(location);
+        InspectedGeometry.AddPoint(location);
+    }
+
+    private void AddInspectedGeometry(Vector location)
+    {
+        InspectedGeometry.AddPoint(location);
+    }
+
+    private void AddMovement(string movement)
+    {
+        movements.Add(movement + "()");
     }
 
     public void Up(int length = 1)
     {
         for (var i = 0; i < length; i++)
         {
-            movements.Add(CUSTOM_PREFIX + "up");
+            AddMovement(CUSTOM_PREFIX + "up");
             Location += new Vector(0, 0, 1);
             AddExcavatedLocation(Location);
         }
@@ -30,7 +47,7 @@ public class Turtle
     {
         for (var i = 0; i < length; i++)
         {
-            movements.Add(CUSTOM_PREFIX + "down");
+            AddMovement(CUSTOM_PREFIX + "down");
             Location -= new Vector(0, 0, 1);
             AddExcavatedLocation(Location);
         }
@@ -40,7 +57,7 @@ public class Turtle
     {
         for (var i = 0; i < length; i++)
         {
-            movements.Add(CUSTOM_PREFIX + "forward");
+            AddMovement(CUSTOM_PREFIX + "forward");
             Location += FacingDirection;
             AddExcavatedLocation(Location);
         }
@@ -50,7 +67,7 @@ public class Turtle
     {
         for (var i = 0; i < length; i++)
         {
-            movements.Add(LUA_PREFIX + "back");
+            AddMovement(LUA_PREFIX + "back");
             Location -= FacingDirection;
             AddExcavatedLocation(Location);
         }
@@ -58,50 +75,57 @@ public class Turtle
 
     public void TurnLeft()
     {
-        movements.Add(LUA_PREFIX + "turnLeft");
+        AddMovement(LUA_PREFIX + "turnLeft");
         FacingDirection = FacingDirection.RotateLeft();
     }
 
     public void TurnRight()
     {
-        movements.Add(LUA_PREFIX + "turnRight");
+        AddMovement(LUA_PREFIX + "turnRight");
         FacingDirection = FacingDirection.RotateRight();
     }
 
     public void Dig()
     {
-        movements.Add(LUA_PREFIX + "dig");
+        AddMovement(LUA_PREFIX + "dig");
         AddExcavatedLocation(Location + FacingDirection);
     }
 
     public void DigUp()
     {
-        movements.Add(CUSTOM_PREFIX + "digUp");
+        AddMovement(CUSTOM_PREFIX + "digUp");
         AddExcavatedLocation(Location + new Vector(0, 0, 1));
     }
 
     public void DigDown()
     {
-        movements.Add(CUSTOM_PREFIX + "digDown");
+        AddMovement(CUSTOM_PREFIX + "digDown");
         AddExcavatedLocation(Location - new Vector(0, 0, 1));
     }
 
     public void TurnAround()
     {
-        movements.Add(CUSTOM_PREFIX + "turnAround");
+        AddMovement(CUSTOM_PREFIX + "turnAround");
         FacingDirection = FacingDirection.Flip();
     }
-    public void CheckAndDumpInventory() => movements.Add(CUSTOM_PREFIX + "checkAndDumpInventory");
-    public void RefuelFromInventory() => movements.Add(CUSTOM_PREFIX + "refuelFromInventory");
-    public void PlaceIntoChest() => movements.Add(CUSTOM_PREFIX + "placeIntoChest");
+    public void CheckAndDumpInventory() => AddMovement(CUSTOM_PREFIX + "checkAndDumpInventory");
+    public void RefuelFromInventory() => AddMovement(CUSTOM_PREFIX + "refuelFromInventory");
+    public void PlaceIntoChest() => AddMovement(CUSTOM_PREFIX + "placeIntoChest");
 
     public List<string> GetMovements()
     {
         return movements;
     }
 
-    public void ResetMovements()
+    internal void DigUpWhenValuable()
     {
-        movements.Clear();
+        AddMovement(CUSTOM_PREFIX + "digUpWhenValuable");
+        AddInspectedGeometry(Location + new Vector(0, 0, 1));
+    }
+
+    internal void DigDownWhenValuable()
+    {
+        AddMovement(CUSTOM_PREFIX + "digDownWhenValuable");
+        AddInspectedGeometry(Location - new Vector(0, 0, 1));
     }
 }

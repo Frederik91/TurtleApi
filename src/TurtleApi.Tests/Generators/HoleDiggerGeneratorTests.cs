@@ -9,7 +9,7 @@ public class HoleDiggerGeneratorTests
     {
         var cut = new HoleDiggerGenerator();
         var args = new HoleDiggerGenerator.HoleDiggerArgs(10, 10, 2);
-        var turtle = new Models.Turtle();
+        var turtle = new TurtleApi.Models.Turtle();
         cut.MoveTurtle(turtle, args);
 
         Assert.Equal(0, turtle.Location.X);

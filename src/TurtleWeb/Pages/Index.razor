@@ -1,3 +1,24 @@
 ﻿@page "/"
+@inject HttpClient client
 
 <h1>Hello, world!</h1>
+
+@if (_turtles is not null)
+{
+    <ul>
+    @foreach (var turtle in _turtles)
+        {
+            <li>@turtle.Name</li>
+        }
+    </ul>
+}
+
+@code {
+
+    private TurtleResponses.Turtle[]? _turtles;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _turtles = await client.GetFromJsonAsync<TurtleResponses.Turtle[]>("Turtle");
+    }
+}

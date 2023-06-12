@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TurtleApi.Db;
+using TurtleApi.Shared.Responses;
 
 namespace TurtleApi.Services.Turtles;
 

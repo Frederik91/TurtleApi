@@ -11,6 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddTransient<IProgramService, ProgramService>();
 builder.Services.AddTransient<IProgramGenerator, HoleDiggerGenerator>();
+builder.Services.AddTransient<IProgramGenerator, ValueDiggerGenerator>();
 builder.Services.AddTransient<ITurtleService, TurtleService>();
 
 builder.Services.AddDbContext<TurtleDbContext>(c =>
@@ -31,6 +32,21 @@ dbContext.Database.Migrate();
 
 app.UseSwagger();
 app.UseSwaggerUI();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseWebAssemblyDebugging();
+}
+else
+{
+    app.UseExceptionHandler("/Error");
+    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseHsts();
+}
+
+app.UseBlazorFrameworkFiles();
+app.UseStaticFiles();
 
 var programs = app.MapGroup("Program");
 
@@ -98,5 +114,7 @@ steps
     {
         Summary = "Get the next step for turtle by name",
     });
+
+app.MapFallbackToFile("index.html");
 
 app.Run();

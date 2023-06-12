@@ -7,57 +7,39 @@ public class Geometry
 {
     public IReadOnlyCollection<Vector> Points => _points;
     private HashSet<Vector> _points = new();
-    private Vector minPoint;
-    private Vector maxPoint;
-    private double volume;
 
-    public Vector MinPoint => minPoint;
-    public Vector MaxPoint => maxPoint;
-    public double Volume => volume;
+    public Vector MinPoint => CalculateMinPoint();
 
-    public Geometry()
-    {
-        CalculateBoundingBox();
-        CalculateVolume();
-    }
+    public Vector MaxPoint => CalculateMaxPoint();
+    public double Volume => _points.Count;
 
     public void AddPoint(Vector point)
     {
         if (_points.Contains(point))
             return;
-            
+
         _points.Add(point);
-        Recalculate();
     }
 
-    private void CalculateBoundingBox()
+    private Vector CalculateMinPoint()
     {
         if (_points.Count == 0)
-        {
-            minPoint = Vector.Zero;
-            maxPoint = Vector.Zero;
-            return;
-        }
+            return Vector.Zero;
 
-        int minX = _points.Min(p => p.X);
-        int minY = _points.Min(p => p.Y);
-        int minZ = _points.Min(p => p.Z);
-        int maxX = _points.Max(p => p.X);
-        int maxY = _points.Max(p => p.Y);
-        int maxZ = _points.Max(p => p.Z);
-
-        minPoint = new Vector(minX, minY, minZ);
-        maxPoint = new Vector(maxX, maxY, maxZ);
+        var x = _points.Min(p => p.X);
+        var y = _points.Min(p => p.Y);
+        var z = _points.Min(p => p.Z);
+        return new(x, y, z);
     }
 
-    private void CalculateVolume()
+    private Vector CalculateMaxPoint()
     {
-        volume = _points.Count;
-    }
+        if (_points.Count == 0)
+            return Vector.Zero;
 
-    private void Recalculate()
-    {
-        CalculateBoundingBox();
-        CalculateVolume();
+        var x = _points.Max(p => p.X);
+        var y = _points.Max(p => p.Y);
+        var z = _points.Max(p => p.Z);
+        return new(x, y, z);
     }
 }

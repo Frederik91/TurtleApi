@@ -1,4 +1,4 @@
-namespace TurtleApi.Services.Turtles;
+namespace TurtleApi.Shared.Responses;
 
 public class TurtleResponses
 {
